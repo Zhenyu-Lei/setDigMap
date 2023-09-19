@@ -3,48 +3,41 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import random
 
-# Load the JSON file
+# 读取json文件
 with open('closest_points.json') as f:
     data = json.load(f)
 
-# Get all unique starting ids in the data
+# 获取数据中所有的起点id
 start_ids = set(elem['id1'] for elem in data)
-
-# Randomly select 10 starting ids
+# 随机选择20个起点id
 selected_start_ids = random.sample(start_ids, 20)
 
-# Load the image
+# 使用未经处理的原图像
 img = Image.open('roadimage.jpg')
-
-# Create a plot
+# 绘制地图
 fig, ax = plt.subplots()
-
-# Plot the image
 ax.imshow(img)
 
-# Plot the endpoints and lines
+# 绘制端点和连线
 colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k']
 for start_id in selected_start_ids:
-    # Extract matching elements for the current starting id
+    # 提取当前起点id的匹配点
     matching_elements = [elem for elem in data if elem['id1'] == start_id]
 
-    # Extract the ending ids and coordinates for each matching element
+    # 提取与起点匹配的每个终点的id和坐标
     end_ids = [elem['id2'] for elem in matching_elements]
     end_coords = [(elem['x2'], elem['y2']) for elem in matching_elements]
 
-    # Plot the starting point
+    # 绘制起点、终点以及连线
     ax.plot(int(matching_elements[0]['x1']), int(matching_elements[0]['y1']), 'r.')
-
-    # Plot the ending points and lines
     for i, (x2, y2) in enumerate(end_coords):
         ax.plot(x2, y2, 'g.', label=f'Endpoint {end_ids[i]}')
         ax.plot([int(matching_elements[0]['x1']), x2], [int(matching_elements[0]['y1']), y2], colors[2])
 
-    # Add legend
     ax.legend(['Starting Point', 'Endpoint'])
 
-# Save the plot as a PNG file
+# 保存
 plt.savefig('sampledraw.png', dpi=300)
 
-# Show the plot
+# 展示
 plt.show()
