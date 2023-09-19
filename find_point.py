@@ -224,8 +224,8 @@ def bfs(process_image):
         process_image[point.y, point.x] = 0  # Set pixel color to red
         print(point)
 
-    cv2.imwrite('boxs_image_bfs.png', process_image)
-    to_json_and_save(points, "point.json")
+    cv2.imwrite('./pics/boxs_image_bfs.png', process_image)
+    to_json_and_save(points, "./pics/point.json")
 
     return points
 

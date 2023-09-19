@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
 import os
-from show_RGB import show_figure
-from find_point import find_junction
+from find_point import find_junction,bfs
 
 
 def process_image(image_path, down_sampling=4, k=20, L=15, pix_thresholded=1):
@@ -79,8 +78,7 @@ def process_image(image_path, down_sampling=4, k=20, L=15, pix_thresholded=1):
         processed_image = thresholded_image[L:-L, L:-L]
 
         # 7. 保存灰度图
-        print(np.unique(processed_image))
-        cv2.imwrite(f'processed_image_{down_sampling}_{k}_{L}_{pix_thresholded}.png', processed_image)
+        cv2.imwrite(f'./pics/processed_image_{down_sampling}_{k}_{L}_{pix_thresholded}.png', processed_image)
 
         # 8. 返回文件路径
         return processed_image
@@ -88,5 +86,4 @@ def process_image(image_path, down_sampling=4, k=20, L=15, pix_thresholded=1):
 
 if __name__ == '__main__':
     image_file = process_image('./pics/map1.jpg', down_sampling=1, L=60)
-    print(np.unique(image_file))
-    # find_junction(image_file)
+    bfs(image_file)
