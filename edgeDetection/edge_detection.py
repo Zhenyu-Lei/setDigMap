@@ -53,5 +53,5 @@ def edge_detection2(path):
 
 
 if __name__ == '__main__':
-    edge_detection('../pics/map1.jpg')
+    edge_detection('../pics/map2.jpg')
     # edge_detection2('../pics/map1.jpg')
