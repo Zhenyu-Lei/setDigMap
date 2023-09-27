@@ -1,10 +1,35 @@
 import cv2
 import numpy as np
 import os
-from find_point import find_junction,bfs
+from find_point import find_junction, bfs
+from skimage.morphology import medial_axis, skeletonize
+from skimage.filters import threshold_otsu
 
 
-def process_image(image_path, down_sampling=4, k=20, L=15, pix_thresholded=1):
+def thinning_image(img, L):
+    # 创建一个全零图像，用于提取骨架
+    skeleton = np.zeros_like(img)
+
+    # 将像素值为128的区域设置为白色
+    skeleton[img == 128] = 1
+
+    L = int(L)
+    # 使用medial_axis函数提取骨架
+    # skeleton = medial_axis(skeleton)
+    skeleton = skeletonize(skeleton)
+
+    # 将骨架膨胀为宽度为5
+    kernel = np.ones((L, L), np.uint8)
+    dilated_skeleton = cv2.dilate(skeleton.astype(np.uint8), kernel, iterations=1)
+    dilated_skeleton[dilated_skeleton == 1] = 128
+    # 保存原始图像、骨架和膨胀后的图像
+    # cv2.imwrite("original_image.jpg", img)
+    # cv2.imwrite("skeleton.jpg", skeleton.astype(np.uint8) * 255)
+    cv2.imwrite("./pics/dilated_image.jpg", dilated_skeleton)
+    return dilated_skeleton
+
+
+def process_image(image_path, down_sampling=4, k=20, L=15, pix_thresholded=0.9):
     if os.path.exists(f'processed_image_{down_sampling}_{k}_{L}_{pix_thresholded}.png'):
         print("processed_image.jpg has exist")
         return cv2.imread(f'processed_image_{down_sampling}_{k}_{L}_{pix_thresholded}.png', cv2.IMREAD_GRAYSCALE)
@@ -26,9 +51,11 @@ def process_image(image_path, down_sampling=4, k=20, L=15, pix_thresholded=1):
         thresholded_image = np.where(resized_image > k, 128, 0)
         # cv2.imwrite('thresholded_image.jpg', thresholded_image)
 
+        thresholded_image = thinning_image(thresholded_image, L / 4)
+
         # 3. 构建垂直方向的直角模板
         # vertical_templates = create_corner_templates(L)
-        vertical_num = [64, 32, 16, 8]
+        vertical_num = [192, 160, 144, 136]
 
         # 4. 添加边界padding
         thresholded_image = np.pad(thresholded_image, L, mode='constant', constant_values=0)

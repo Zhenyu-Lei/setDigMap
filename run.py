@@ -8,9 +8,10 @@ from json_to_xml import convert_json_to_xml
 # 获取超参数
 parser = parse_arguments()
 # 获取路口信息
-image_file = process_image(parser.input_image, down_sampling=parser.down_sampling, k=parser.k, L=parser.L)
+image_file = process_image(parser.input_image, down_sampling=parser.down_sampling, k=parser.k, L=parser.L,
+                           pix_thresholded=parser.tolerance)
 # 获取点信息
-bfs(image_file)
+points = bfs(image_file, parser.input_image, down_sampling=parser.down_sampling)
 # 边缘检测
 edge_detection(parser.input_image)
 # 获取路口连接信息

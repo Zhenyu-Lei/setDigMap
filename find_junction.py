@@ -3,9 +3,9 @@ import math
 from PIL import Image
 import numpy as np
 
+
 # 两个路口是否真的连接
 def sample_image(filename, coord1, coord2):
-
     # Load the image and convert it to grayscale
     img = Image.open(filename).convert('L')
 
@@ -24,6 +24,7 @@ def sample_image(filename, coord1, coord2):
     grayscale_sum = sum([img.getpixel(p) for p in sample_points])
 
     return grayscale_sum
+
 
 # 查找上方的连接路口
 def find_nearest_up(input_image, x, y, points, threshold):

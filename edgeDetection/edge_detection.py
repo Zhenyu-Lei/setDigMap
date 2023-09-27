@@ -28,10 +28,10 @@ def edge_detection(path):
     output_image[edges >= 255] = 255
 
     # 保存边缘图像
-    cv2.imwrite('path_to_output_edges.png', edges)
+    cv2.imwrite('./pics/path_to_output_edges.png', edges)
 
     # 保存带有阈值处理后的图像像素信息的图像
-    cv2.imwrite('path_to_output_image.png', output_image)
+    cv2.imwrite('./pics/path_to_output_image.png', output_image)
 
 
 def edge_detection2(path):

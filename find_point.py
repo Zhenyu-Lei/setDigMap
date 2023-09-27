@@ -39,7 +39,7 @@ def to_json_and_save(points, file_path):
 
     with open(file_path, "w") as file:
         file.write(json_str)
-        
+
 
 def reset_values(arr, value, new_value):
     mask = (arr == value)  # 创建一个布尔掩码，表示arr中值为value的位置
@@ -165,12 +165,12 @@ def find_junction(process_image):
         process_image[point.y, point.x] = 0  # Set pixel color to red
         print(point)
 
-    cv2.imwrite('boxs_image.png', process_image)
-    to_json_and_save(selected_points, "point.json")
+    cv2.imwrite('./pics/boxs_image.png', process_image)
+    to_json_and_save(selected_points, "./pics/point.json")
     return selected_points
 
 
-def bfs(process_image):
+def bfs(process_image, image_path, down_sampling):
     height, width = process_image.shape
     # 1. 将二值图所有值为128的位置置为0
     copy_image = np.copy(process_image)
@@ -209,6 +209,8 @@ def bfs(process_image):
                     queue.append((neighbor_y, neighbor_x))
 
         max_cls = max(cls_counts, key=lambda k: cls_counts[k])
+        if cls_counts.get(248, 0) != 0:
+            max_cls = 248
         y_mean = np.mean([point[0] for point in np.argwhere(id_map == id_counter)])
         x_mean = np.mean([point[1] for point in np.argwhere(id_map == id_counter)])
         points.append(Point(id_counter - 1, int(y_mean), int(x_mean), max_cls))
@@ -219,10 +221,31 @@ def bfs(process_image):
             if not visited[y, x] and copy_image[y, x] != 0:
                 bfs_from_point(y, x)
 
-    # Draw red pixels for selected points on the image
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    # 下采样参数
+    scale_factor = 1 / down_sampling  # 缩小 8 倍
+    # 计算新的图像尺寸
+    new_width = int(image.shape[1] * scale_factor)
+    new_height = int(image.shape[0] * scale_factor)
+    new_size = (new_width, new_height)
+
+    # 进行下采样
+    image = cv2.resize(image, new_size)
+
+    # 将灰度图像转换为彩色图像
+    process_image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+
+    # 绘制选定点的红色像素并标记 points.cls
     for point in points:
-        process_image[point.y, point.x] = 0  # Set pixel color to red
-        print(point)
+        x = point.x
+        y = point.y
+        cls = point.cls
+
+        # 设置像素颜色为红色
+        process_image[y, x] = (0, 0, 255)  # BGR颜色通道，红色为(0, 0, 255)
+
+        # 在图像上标记 points.cls
+        cv2.putText(process_image, str(point.pid)+'_'+str(cls), (x, y), cv2.FONT_HERSHEY_SIMPLEX, scale_factor, (0, 255, 0), 1)  # 文本颜色为白色
 
     cv2.imwrite('./pics/boxs_image_bfs.png', process_image)
     to_json_and_save(points, "./pics/point.json")
