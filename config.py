@@ -9,7 +9,7 @@ def parse_arguments():
     parser.add_argument('-k', type=int, default=20, help='像素值的阈值')
     parser.add_argument('--down_sampling', type=int, default=1, help='下采样幅度')
     parser.add_argument('-L', type=int, default=60, help='路口模板匹配值的大小')
-    parser.add_argument('-M', type=int, default=50, help='路口坐标误差阈值')
+    parser.add_argument('-M', type=int, default=30, help='路口坐标误差阈值')
 
     args = parser.parse_args()
     return args
