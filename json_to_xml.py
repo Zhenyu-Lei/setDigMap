@@ -40,9 +40,11 @@ def convert_json_to_xml(nearest_points, output_path, down_sampling):
     for i, path in enumerate(nearest_points):
         start_point = np.array([path["x1"], path["y1"]])
         end_point = np.array([path["x2"], path["y2"]])
-        num_points = int(np.ceil(np.linalg.norm(end_point - start_point) * down_sampling / 50))
+        # 设置采样点数
+        num_points = int(np.ceil(np.linalg.norm(end_point - start_point) // 100)) + 2
         points = np.linspace(start_point, end_point, num_points, endpoint=True)
         points = np.array(points)
+        # 将点坐标调整为整数
         points = points.astype(int)
 
         way = ET.SubElement(root, 'way', road_id=str(i + 1), pointNUM=str(num_points + 1), type='')
