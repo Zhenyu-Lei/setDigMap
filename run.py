@@ -14,6 +14,6 @@ bfs(image_file)
 # 边缘检测
 edge_detection(parser.input_image)
 # 获取路口连接信息
-nearest_points = find_nearest_points(points, threshold=parser.M)
+nearest_points = find_nearest_points(parser.input_image, points, threshold=parser.M, down_sampling=parser.down_sampling)
 # 保存xml文件
 convert_json_to_xml(nearest_points, parser.output_path, down_sampling=parser.down_sampling)
