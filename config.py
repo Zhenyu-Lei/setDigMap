@@ -10,7 +10,7 @@ def parse_arguments():
     parser.add_argument('--down_sampling', type=int, default=2, help='下采样幅度')
     parser.add_argument('-L', type=int, default=30, help='路口模板匹配值的大小')
     parser.add_argument('-M', type=int, default=30, help='路口坐标误差阈值')
-    parser.add_argument('--tolerance', type=float, default=0.8, help='模板匹配的容差值')
+    parser.add_argument('--tolerance', type=float, default=1, help='模板匹配的容差值')
 
     args = parser.parse_args()
     return args
