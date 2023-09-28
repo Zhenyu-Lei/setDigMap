@@ -4,7 +4,7 @@
 ### 使用方法：
 
 ```shell
-python run.py --down_sampling 8 -L 8 -k 20 --input_image './pics/map1.jpg' -M 10 --output_path './map_xml/formatted_output.xml'
+python run.py --down_sampling 2 -L 8 -k 20 --input_image './pics/map1.jpg' -M 10 --output_path './map_xml/formatted_output.xml'
 ```
 
 ### 拓扑结构的建立
