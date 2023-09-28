@@ -38,10 +38,11 @@ def find_nearest_up(input_image, x, y, points, threshold):
             closest = point
             min_distance = y - point.y
 
-    # 判断是否为断头路
-    grayscale_sum = sample_image(input_image, (x, y), (closest.x, closest.y))
-    if grayscale_sum < 500:
-        closest = None
+    if closest is not None:
+        # 判断是否为断头路
+        grayscale_sum = sample_image(input_image, (x, y), (closest.x, closest.y))
+        if grayscale_sum < 500:
+            closest = None
 
     return closest
 
@@ -58,10 +59,11 @@ def find_nearest_down(input_image, x, y, points, threshold):
             closest = point
             min_distance = point.y - y
 
-    # 判断是否为断头路
-    grayscale_sum = sample_image(input_image, (x, y), (closest.x, closest.y))
-    if grayscale_sum < 500:
-        closest = None
+    if closest is not None:
+        # 判断是否为断头路
+        grayscale_sum = sample_image(input_image, (x, y), (closest.x, closest.y))
+        if grayscale_sum < 500:
+            closest = None
 
     return closest
 
@@ -78,10 +80,11 @@ def find_nearest_left(input_image, x, y, points, threshold):
             closest = point
             min_distance = x - point.x
 
-    # 判断是否为断头路
-    grayscale_sum = sample_image(input_image, (x, y), (closest.x, closest.y))
-    if grayscale_sum < 500:
-        closest = None
+    if closest is not None:
+        # 判断是否为断头路
+        grayscale_sum = sample_image(input_image, (x, y), (closest.x, closest.y))
+        if grayscale_sum < 500:
+            closest = None
 
     return closest
 
@@ -98,10 +101,11 @@ def find_nearest_right(input_image, x, y, points, threshold):
             closest = point
             min_distance = point.x - x
 
-    # 判断是否为断头路
-    grayscale_sum = sample_image(input_image, (x, y), (closest.x, closest.y))
-    if grayscale_sum < 500:
-        closest = None
+    if closest is not None:
+        # 判断是否为断头路
+        grayscale_sum = sample_image(input_image, (x, y), (closest.x, closest.y))
+        if grayscale_sum < 500:
+            closest = None
 
     return closest
 
