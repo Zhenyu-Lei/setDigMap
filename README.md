@@ -7,6 +7,16 @@
 python run.py --down_sampling 2 -L 8 -k 20 --input_image './pics/map1.jpg' -M 10 --output_path './map_xml/formatted_output.xml'
 ```
 
+>```python
+>parser.add_argument('--input_image', default='./pics/map2.jpg', help='输入图片路径')
+>parser.add_argument('--output_path', default='./pics/A.xml', help='输出文件路径')
+>parser.add_argument('-k', type=int, default=20, help='二值化像素值的阈值')
+>parser.add_argument('--down_sampling', type=int, default=4, help='下采样幅度')
+>parser.add_argument('-L', type=int, default=15, help='路口模板匹配值的大小，根据下采样幅度，越小的图片所需模板大小越小')
+>parser.add_argument('-M', type=int, default=30, help='路口坐标误差阈值，根据下采样幅度，越小的图片所需路口容差大小越小')
+>parser.add_argument('--tolerance', type=float, default=1, help='模板匹配的容忍值，如果图片不规整，适当将其调小，取值[0,1]')
+>```
+
 ### 拓扑结构的建立
 
 1. 使用模板匹配的方式标注所有的**为路口的像素和其类型**，类型如下:

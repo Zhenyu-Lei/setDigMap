@@ -3,6 +3,7 @@ from collections import deque
 import numpy as np
 import cv2
 import json
+from peakRange import peak_process_image, find_peak_ranges, generate_peak_ranges
 
 
 class Point:
@@ -245,7 +246,97 @@ def bfs(process_image, image_path, down_sampling):
         process_image[y, x] = (0, 0, 255)  # BGR颜色通道，红色为(0, 0, 255)
 
         # 在图像上标记 points.cls
-        cv2.putText(process_image, str(point.pid)+'_'+str(cls), (x, y), cv2.FONT_HERSHEY_SIMPLEX, scale_factor, (0, 255, 0), 1)  # 文本颜色为白色
+        cv2.putText(process_image, str(point.pid) + '_' + str(cls), (x, y), cv2.FONT_HERSHEY_SIMPLEX, scale_factor,
+                    (0, 255, 0), 1)  # 文本颜色为白色
+
+    return points
+
+
+def bfs2(process_image, image_path, down_sampling):
+    height, width = process_image.shape
+    # 重新计算peak，因为get_featrue是计算过padding的，坐标轴不一样
+    sum_of_y, sum_of_x = peak_process_image(process_image)
+    y_peak_ranges, x_peak_ranges = find_peak_ranges(sum_of_y, sum_of_x)
+    peak_range_list = generate_peak_ranges(y_peak_ranges, x_peak_ranges)
+
+    # 1. 将二值图所有值为128的位置置为0
+    copy_image = np.copy(process_image)
+    reset_values(copy_image, 128, 0)
+    id_map = np.zeros((height, width), dtype=int)
+    visited = np.zeros((height, width), dtype=bool)
+    id_counter = 1
+    points = []
+
+    def get_neighbors(y, x):
+        neighbors = []
+        if y > 0:
+            neighbors.append((y - 1, x))
+        if y < height - 1:
+            neighbors.append((y + 1, x))
+        if x > 0:
+            neighbors.append((y, x - 1))
+        if x < width - 1:
+            neighbors.append((y, x + 1))
+        return neighbors
+
+    def bfs_from_point(start_y, start_x):
+        nonlocal id_counter
+        queue = deque([(start_y, start_x)])
+        visited[start_y, start_x] = True
+        cls_counts = {}  # Count of each pixel value within the connected component
+        while queue:
+            y, x = queue.popleft()
+            pixel_value = copy_image[y, x]
+            id_map[y, x] = id_counter
+            cls_counts[pixel_value] = cls_counts.get(pixel_value, 0) + 1
+
+            for neighbor_y, neighbor_x in get_neighbors(y, x):
+                if not visited[neighbor_y, neighbor_x] and copy_image[neighbor_y, neighbor_x] != 0:
+                    visited[neighbor_y, neighbor_x] = True
+                    queue.append((neighbor_y, neighbor_x))
+
+        max_cls = max(cls_counts, key=lambda k: cls_counts[k])
+        if cls_counts.get(248, 0) != 0:
+            max_cls = 248
+        y_mean = np.mean([point[0] for point in np.argwhere(id_map == id_counter)])
+        x_mean = np.mean([point[1] for point in np.argwhere(id_map == id_counter)])
+        points.append(Point(id_counter - 1, int(y_mean), int(x_mean), max_cls))
+        id_counter += 1
+
+    for peak_range in peak_range_list:
+        for y in range(peak_range[1], peak_range[3] + 1):
+            for x in range(peak_range[0], peak_range[2] + 1):
+                if not visited[y, x] and copy_image[y, x] != 0:
+                    bfs_from_point(y, x)
+
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    # 下采样参数
+    scale_factor = 1 / down_sampling  # 缩小 8 倍
+    # 计算新的图像尺寸
+    new_width = int(image.shape[1] * scale_factor)
+    new_height = int(image.shape[0] * scale_factor)
+    new_size = (new_width, new_height)
+
+    # 进行下采样
+    image = cv2.resize(image, new_size)
+
+    # 将灰度图像转换为彩色图像
+    process_image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+
+    # 绘制选定点的红色像素并标记 points.cls
+    for point in points:
+        x = point.x
+        y = point.y
+        cls = point.cls
+
+        # 设置像素颜色为红色
+        process_image[y, x] = (0, 0, 255)  # BGR颜色通道，红色为(0, 0, 255)
+
+        # 在图像上标记 points.cls
+        # cv2.putText(process_image, str(point.pid) + '_' + str(cls), (x, y), cv2.FONT_HERSHEY_SIMPLEX, scale_factor,
+        #             (0, 255, 0), 1)  # 文本颜色为白色
+        cv2.putText(process_image, str(point.pid), (x, y), cv2.FONT_HERSHEY_SIMPLEX, scale_factor,
+                    (0, 255, 0), 1)  # 文本颜色为白色
 
     cv2.imwrite('./pics/boxs_image_bfs.png', process_image)
     to_json_and_save(points, "./pics/point.json")
